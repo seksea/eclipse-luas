@@ -1,6 +1,6 @@
 --name advancededgebug
 --desc bug the edge. (advanced)
---author sekc
+--author sekc, vampur
 
 -- Settings
 EDGEBUG_FOUND_SOUND = "common/warning"
@@ -39,11 +39,11 @@ local function detectEdgebug(localPlayer)
 end
 
 local successfulMove = {
-    found = false, forwardmove = 0, sidemove = 0, angle = QAngle(0, 0, 0), buttons = 0, edgebugTick = 0
+    found = false, forwardmove = 0, sidemove = 0, angle = QAngle(0, 0, 0), delta = 0, buttons = 0, edgebugTick = 0
 }
 
 local backupMove = {
-    forwardmove = 0, sidemove = 0, buttons = 0
+    forwardmove = 0, sidemove = 0, buttons = 0, angle = QAngle(0, 0, 0), delta = 0
 }
 
 -- if edgebug found force cmd to follow this edgebug
@@ -59,17 +59,21 @@ local function forceEdgebug(cmd, localPlayer)
         -- if edgebug is already found then set buttons to the buttons to hit edgebug with (also set forwardmove+sidemove to 0)
         cmd.buttons = successfulMove.buttons
 
-        eclipse.startMovementFix(cmd)
+        successfulMove.angle = QAngle(successfulMove.angle.x, successfulMove.angle.y + successfulMove.delta, 0)
         cmd.viewangles = successfulMove.angle
-        eclipse.endMovementFix(cmd)
         cmd.forwardmove = successfulMove.forwardmove
         cmd.sidemove = successfulMove.sidemove
+
+        eclipse.startMovementFix(cmd)
+        cmd.viewangles = backupMove.angle
+        eclipse.endMovementFix(cmd)
+        
         eclipse.setCmd(cmd)
         return
     end
 end
 
-local function onFoundEdgebug(edgebugRecord, tickFoundAt, cmd, localPlayer)
+local function onFoundEdgebug(edgebugRecord, delta, tickFoundAt, cmd, localPlayer)
     -- add 5 future ticks to record so you can see edgebug direction
     for j=1,5 do
         prediction.start(cmd)
@@ -85,7 +89,9 @@ local function onFoundEdgebug(edgebugRecord, tickFoundAt, cmd, localPlayer)
     end
 
     successfulMove.found = true
-    successfulMove.angle = cmd.viewangles
+    successfulMove.angle = backupMove.angle
+    cmd.viewangles = successfulMove.angle
+    successfulMove.delta = delta
     successfulMove.forwardmove = cmd.forwardmove
     successfulMove.sidemove = cmd.sidemove
     successfulMove.buttons = cmd.buttons
@@ -94,11 +100,14 @@ local function onFoundEdgebug(edgebugRecord, tickFoundAt, cmd, localPlayer)
     eclipse.setCmd(cmd)
 end
 
-local function predictEdgebug(cmd, localPlayer)
+local function predictEdgebug(cmd, localPlayer, delta)
+    if not delta then delta = 0 end
+
     local commandsPredicted = prediction.commandsPredicted()
 
     local edgebugRecord = {} -- table that holds records of position of found edgebug (for edgebug trail)
     -- prediction loop
+    cmd.viewangles = backupMove.angle -- restore baseline viewangles
     for i=0,ui.getConfigFloat("edgebug predict ticks") do
         lastTickVel = localPlayer:velocity()
         prediction.start(cmd)
@@ -107,37 +116,56 @@ local function predictEdgebug(cmd, localPlayer)
          -- add current tick to edgebug record
         edgebugRecord[i] = { ["origin"] = localPlayer:origin() }
 
-        -- if edgebug found save found edgebug and set cmd so our forwardmove and sidemove are 0
+        -- if edgebug found save found edgebug and set cmd
         if detectEdgebug(localPlayer) then
-            onFoundEdgebug(edgebugRecord, i, cmd, localPlayer)
+            onFoundEdgebug(edgebugRecord, delta, i, cmd, localPlayer)
             break
         end
 
         if localPlayer:onground() then break end
+
+        cmd.viewangles = QAngle(cmd.viewangles.x, cmd.viewangles.y + delta, 0)
     end
 
     prediction.restoreToFrame(commandsPredicted - 1)
 end
 
 local edgebugLookupTable = {
-    [1] = function (cmd, localPlayer) -- standing and crouching (no strafe) edgebug
+    [1] = function (cmd, localPlayer) -- standing and crouching edgebug
         cmd.forwardmove = 0
         cmd.sidemove = 0
         cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
         predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
         cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
         predictEdgebug(cmd, localPlayer)
     end,
     [2] = function (cmd, localPlayer) -- sidemove + forwardmove edgebug
+        predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
         cmd.sidemove = 450
         predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
         cmd.sidemove = -450
         predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
         cmd.sidemove = 0
         cmd.forwardmove = 450
         predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
         cmd.forwardmove = -450
         predictEdgebug(cmd, localPlayer)
+    end,
+    [3] = function (cmd, localPlayer) -- strafe edgebug
+        cmd.sidemove = 450
+        predictEdgebug(cmd, localPlayer, -2)
+        if successfulMove.found then return end
+        predictEdgebug(cmd, localPlayer, -1)
+        if successfulMove.found then return end
+        cmd.sidemove = -450
+        predictEdgebug(cmd, localPlayer, 2)
+        if successfulMove.found then return end
+        predictEdgebug(cmd, localPlayer, 1)
     end
 }
 
@@ -156,6 +184,8 @@ function onCreateMove(cmd)
     backupMove.forwardmove = cmd.forwardmove
     backupMove.sidemove = cmd.sidemove
     backupMove.buttons = cmd.buttons
+    backupMove.delta = QAngle(cmd.viewangles.x - backupMove.angle.x, cmd.viewangles.y - backupMove.angle.y, 0)
+    backupMove.angle = QAngle(cmd.viewangles.x, cmd.viewangles.y, 0)
 
     forceEdgebug(cmd, localPlayer)
 
@@ -163,11 +193,12 @@ function onCreateMove(cmd)
     if not successfulMove.found then
         edgebugLookupTable[(count % #edgebugLookupTable) + 1](cmd, localPlayer)
     end
-
+    
     if not successfulMove.found then
         cmd.forwardmove = backupMove.forwardmove
         cmd.sidemove = backupMove.sidemove
         cmd.buttons = backupMove.buttons
+        cmd.viewangles = backupMove.angle
         eclipse.setCmd(cmd)
     end
 
@@ -197,6 +228,7 @@ function onDraw()
         ui.label("edgebug found: " .. tostring(successfulMove.found))
         ui.label("sidemove: " .. successfulMove.sidemove)
         ui.label("forwardmove: " .. successfulMove.forwardmove)
+        ui.label("y delta: " .. successfulMove.delta)
         ui.endWindow()
     end
 end
