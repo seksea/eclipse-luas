@@ -43,7 +43,7 @@ local successfulMove = {
 }
 
 local backupMove = {
-    forwardmove = 0, sidemove = 0, buttons = 0, angle = QAngle(0, 0, 0), delta = 0
+    forwardmove = 0, sidemove = 0, buttons = 0, angle = QAngle(0, 0, 0)
 }
 
 -- if edgebug found force cmd to follow this edgebug
@@ -87,6 +87,7 @@ local function onFoundEdgebug(edgebugRecord, delta, tickFoundAt, cmd, localPlaye
             beam.createBeam(edgebugRecord[i]["origin"], edgebugRecord[i+1]["origin"], "sprites/purplelaser1.vmt", ui.getConfigCol("edgebug trail color"), 10, 10, 0)
         end
     end
+    beam.ringBeam(edgebugRecord[tickFoundAt]["origin"], 300 * (tickFoundAt/64), -300 * (tickFoundAt/64), "sprites/purplelaser1.vmt", ui.getConfigCol("edgebug trail color"), (tickFoundAt/64) * 2, 10)
 
     successfulMove.found = true
     successfulMove.angle = backupMove.angle
@@ -184,7 +185,6 @@ function onCreateMove(cmd)
     backupMove.forwardmove = cmd.forwardmove
     backupMove.sidemove = cmd.sidemove
     backupMove.buttons = cmd.buttons
-    backupMove.delta = QAngle(cmd.viewangles.x - backupMove.angle.x, cmd.viewangles.y - backupMove.angle.y, 0)
     backupMove.angle = QAngle(cmd.viewangles.x, cmd.viewangles.y, 0)
 
     forceEdgebug(cmd, localPlayer)
