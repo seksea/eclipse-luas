@@ -149,6 +149,7 @@ local edgebugLookupTable = {
         if successfulMove.found then return end
         cmd.sidemove = -450
         predictEdgebug(cmd, localPlayer)
+        --[[
         if successfulMove.found then return end
         cmd.sidemove = 0
         cmd.forwardmove = 450
@@ -156,6 +157,7 @@ local edgebugLookupTable = {
         if successfulMove.found then return end
         cmd.forwardmove = -450
         predictEdgebug(cmd, localPlayer)
+        --]]
     end,
     [3] = function (cmd, localPlayer) -- strafe edgebug
         cmd.sidemove = 450
