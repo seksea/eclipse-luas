@@ -158,14 +158,14 @@ local edgebugLookupTable = {
     end,
     [3] = function (cmd, localPlayer) -- strafe edgebug
         cmd.sidemove = 450
-        predictEdgebug(cmd, localPlayer, -2)
+        predictEdgebug(cmd, localPlayer, -ui.getConfigFloat("edgebug strafe strength"))
         if successfulMove.found then return end
-        predictEdgebug(cmd, localPlayer, -1)
+        predictEdgebug(cmd, localPlayer, -(ui.getConfigFloat("edgebug strafe strength")/2))
         if successfulMove.found then return end
         cmd.sidemove = -450
-        predictEdgebug(cmd, localPlayer, 2)
+        predictEdgebug(cmd, localPlayer, ui.getConfigFloat("edgebug strafe strength"))
         if successfulMove.found then return end
-        predictEdgebug(cmd, localPlayer, 1)
+        predictEdgebug(cmd, localPlayer, ui.getConfigFloat("edgebug strafe strength")/2)
     end
 }
 
@@ -214,6 +214,8 @@ function onUI()
     ui.separator()
     ui.label("edgebug settings")
     ui.sliderInt("predict ticks", "edgebug predict ticks", 0, 256, "%d ticks")
+    ui.checkbox("edgebug trail", "edgebug trail")
+    ui.sliderFloat("edgebug strafe strength", "edgebug strafe strength", 0, 2, "%f")
     ui.separator()
     ui.label("trail")
     ui.checkbox("edgebug trail", "edgebug trail")
