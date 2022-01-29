@@ -178,6 +178,16 @@ local edgebugLookupTable = {
         predictEdgebug(cmd, localPlayer)
         if successfulMove.found then return end
         cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
+
+        -- anti-overshoot edgebug
+        cmd.forwardmove = -10
+        predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
+        cmd.forwardmove = -20
+        predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
+        cmd.forwardmove = -30
+        predictEdgebug(cmd, localPlayer)
     end,
     [2] = function (cmd, localPlayer) -- BiNaRy sEaRcH EdGeBuG
         cmd.forwardmove = 0
@@ -198,7 +208,7 @@ function onCreateMove(cmd)
     currentTick = cmd.tickcount
     local localPlayer = entitylist.getEntity(entitylist.getLocalPlayer())
     if not (localPlayer:sane() and localPlayer:alive()) then return end
-    
+
     if not ui.isKeybinderDown("edgebug key") or localPlayer:onground() then
         successfulMove.found = false
         return
@@ -256,7 +266,7 @@ function onDraw()
         ui.label("edgebug found: " .. tostring(successfulMove.found))
         ui.label("sidemove: " .. successfulMove.sidemove)
         ui.label("forwardmove: " .. successfulMove.forwardmove)
-        ui.label("yaw delta: " .. successfulMove.delta.y)
+        if not (successfulMove.sidemove == 0) then ui.label("yaw delta: " .. successfulMove.delta.y) end
         ui.endWindow()
     end
 end
