@@ -1,6 +1,6 @@
 --name advancededgebug
 --desc bug the edge. (advanced)
---author sekc
+--author sekc, vampur
 
 -- Settings
 EDGEBUG_FOUND_SOUND = "common/warning"
