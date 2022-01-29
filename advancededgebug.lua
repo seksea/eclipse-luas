@@ -170,19 +170,14 @@ end
 
 local edgebugLookupTable = {
     [1] = function (cmd, localPlayer) -- standing/crouching/strafing edgebug
-        predictEdgebug(cmd, localPlayer)
-        if successfulMove.found then return end
-        cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
-        predictEdgebug(cmd, localPlayer)
-        if successfulMove.found then return end
-        cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
         cmd.forwardmove = 0
         cmd.sidemove = 0
-        backupMove.delta.y = 0
         predictEdgebug(cmd, localPlayer)
         if successfulMove.found then return end
         cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
         predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
+        cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
     end,
     [2] = function (cmd, localPlayer) -- BiNaRy sEaRcH EdGeBuG
         cmd.forwardmove = 0
