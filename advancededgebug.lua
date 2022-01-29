@@ -1,10 +1,10 @@
 --name advancededgebug
 --desc bug the edge. (advanced)
---author sekc, vampur
+--author sekc
 
 -- Settings
 EDGEBUG_FOUND_SOUND = "common/warning"
-EDGEBUG_SOUND = "buttons/arena_switch_press_02"
+EDGEBUG_SOUND = "buttons/blip1"
 
 local ffi = require("ffi")
 
@@ -39,11 +39,15 @@ local function detectEdgebug(localPlayer)
 end
 
 local successfulMove = {
-    found = false, forwardmove = 0, sidemove = 0, angle = QAngle(0, 0, 0), delta = 0, buttons = 0, edgebugTick = 0
+    found = false, forwardmove = 0, sidemove = 0, angle = QAngle(0, 0, 0), delta = QAngle(0, 0, 0), buttons = 0, edgebugTick = 0
 }
 
 local backupMove = {
-    forwardmove = 0, sidemove = 0, buttons = 0, angle = QAngle(0, 0, 0)
+    forwardmove = 0, sidemove = 0, buttons = 0, angle = QAngle(0, 0, 0), delta = QAngle(0, 0, 0)
+}
+
+local binBrute = {
+    highestGround = -1337420, searchDir = 1, ticksToGround = 0
 }
 
 -- if edgebug found force cmd to follow this edgebug
@@ -59,7 +63,15 @@ local function forceEdgebug(cmd, localPlayer)
         -- if edgebug is already found then set buttons to the buttons to hit edgebug with (also set forwardmove+sidemove to 0)
         cmd.buttons = successfulMove.buttons
 
-        successfulMove.angle = QAngle(successfulMove.angle.x, successfulMove.angle.y + successfulMove.delta, 0)
+        successfulMove.angle = QAngle(0, successfulMove.angle.y + successfulMove.delta.y, 0)
+        --normalize dat yaw real kwik
+        while successfulMove.angle.y > 180 do
+            successfulMove.angle.y = successfulMove.angle.y - 360
+        end
+        while successfulMove.angle.y < -180 do
+            successfulMove.angle.y = successfulMove.angle.y + 360
+        end
+
         cmd.viewangles = successfulMove.angle
         cmd.forwardmove = successfulMove.forwardmove
         cmd.sidemove = successfulMove.sidemove
@@ -67,13 +79,13 @@ local function forceEdgebug(cmd, localPlayer)
         eclipse.startMovementFix(cmd)
         cmd.viewangles = backupMove.angle
         eclipse.endMovementFix(cmd)
-        
+
         eclipse.setCmd(cmd)
         return
     end
 end
 
-local function onFoundEdgebug(edgebugRecord, delta, tickFoundAt, cmd, localPlayer)
+local function onFoundEdgebug(edgebugRecord, tickFoundAt, cmd, localPlayer)
     -- add 5 future ticks to record so you can see edgebug direction
     for j=1,5 do
         prediction.start(cmd)
@@ -92,7 +104,7 @@ local function onFoundEdgebug(edgebugRecord, delta, tickFoundAt, cmd, localPlaye
     successfulMove.found = true
     successfulMove.angle = backupMove.angle
     cmd.viewangles = successfulMove.angle
-    successfulMove.delta = delta
+    successfulMove.delta = backupMove.delta
     successfulMove.forwardmove = cmd.forwardmove
     successfulMove.sidemove = cmd.sidemove
     successfulMove.buttons = cmd.buttons
@@ -101,74 +113,86 @@ local function onFoundEdgebug(edgebugRecord, delta, tickFoundAt, cmd, localPlaye
     eclipse.setCmd(cmd)
 end
 
-local function predictEdgebug(cmd, localPlayer, delta)
-    if not delta then delta = 0 end
+local predCount = 0
+local function predictEdgebug(cmd, localPlayer)
+    if successfulMove.found then return end
 
     local commandsPredicted = prediction.commandsPredicted()
 
     local edgebugRecord = {} -- table that holds records of position of found edgebug (for edgebug trail)
     -- prediction loop
     cmd.viewangles = backupMove.angle -- restore baseline viewangles
+
+    local curPredCount = 0
     for i=0,ui.getConfigFloat("edgebug predict ticks") do
+        if(predCount >= ui.getConfigFloat("edgebug predict ticks")) then break end
+        
         lastTickVel = localPlayer:velocity()
         prediction.start(cmd)
         prediction.end_()
+        predCount = predCount + 1
+        curPredCount = curPredCount + 1
         
          -- add current tick to edgebug record
         edgebugRecord[i] = { ["origin"] = localPlayer:origin() }
 
-        -- if edgebug found save found edgebug and set cmd
+        -- if edgebug found save found edgebug and set cmd so our forwardmove and sidemove are 0
         if detectEdgebug(localPlayer) then
-            onFoundEdgebug(edgebugRecord, delta, i, cmd, localPlayer)
+            onFoundEdgebug(edgebugRecord, i, cmd, localPlayer)
+            prediction.restoreToFrame(commandsPredicted - 1)
             break
         end
 
-        if localPlayer:onground() then break end
+        if localPlayer:onground() then
+            binBrute.ticksToGround = curPredCount
+            if localPlayer:origin().z > binBrute.highestGround then
+                binBrute.highestGround = localPlayer:origin().z
+                binBrute.searchDir = 1
+            end
+            break 
+        end
 
-        cmd.viewangles = QAngle(cmd.viewangles.x, cmd.viewangles.y + delta, 0)
+        if localPlayer:origin().z < binBrute.highestGround then
+            binBrute.searchDir = -1
+        end
+
+        cmd.viewangles = QAngle(0, cmd.viewangles.y + backupMove.delta.y, 0)
+        while cmd.viewangles.y > 180 do
+            cmd.viewangles.y = cmd.viewangles.y - 360
+        end
+        while cmd.viewangles.y < -180 do
+            cmd.viewangles.y = cmd.viewangles.y + 360
+        end
     end
 
     prediction.restoreToFrame(commandsPredicted - 1)
 end
 
 local edgebugLookupTable = {
-    [1] = function (cmd, localPlayer) -- standing and crouching edgebug
+    [1] = function (cmd, localPlayer) -- standing/crouching/strafing edgebug
+        predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
+        cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
+        predictEdgebug(cmd, localPlayer)
+        if successfulMove.found then return end
+        cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
         cmd.forwardmove = 0
         cmd.sidemove = 0
-        cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
+        backupMove.delta.y = 0
         predictEdgebug(cmd, localPlayer)
         if successfulMove.found then return end
         cmd.buttons = bit.bxor(cmd.buttons, 4) -- IN_DUCK = 4
         predictEdgebug(cmd, localPlayer)
     end,
-    [2] = function (cmd, localPlayer) -- sidemove + forwardmove edgebug
+    [2] = function (cmd, localPlayer) -- BiNaRy sEaRcH EdGeBuG
         predictEdgebug(cmd, localPlayer)
         if successfulMove.found then return end
-        cmd.sidemove = 450
-        predictEdgebug(cmd, localPlayer)
-        if successfulMove.found then return end
-        cmd.sidemove = -450
-        predictEdgebug(cmd, localPlayer)
-        --[[
-        if successfulMove.found then return end
-        cmd.sidemove = 0
-        cmd.forwardmove = 450
-        predictEdgebug(cmd, localPlayer)
-        if successfulMove.found then return end
-        cmd.forwardmove = -450
-        predictEdgebug(cmd, localPlayer)
-        --]]
-    end,
-    [3] = function (cmd, localPlayer) -- strafe edgebug
-        cmd.sidemove = 450
-        predictEdgebug(cmd, localPlayer, -ui.getConfigFloat("edgebug strafe strength"))
-        if successfulMove.found then return end
-        predictEdgebug(cmd, localPlayer, -(ui.getConfigFloat("edgebug strafe strength")/2))
-        if successfulMove.found then return end
-        cmd.sidemove = -450
-        predictEdgebug(cmd, localPlayer, ui.getConfigFloat("edgebug strafe strength"))
-        if successfulMove.found then return end
-        predictEdgebug(cmd, localPlayer, ui.getConfigFloat("edgebug strafe strength")/2)
+        while predCount < ui.getConfigFloat("edgebug predict ticks") do
+            if predCount >= (binBrute.ticksToGround * 8) then break end
+            backupMove.delta.y = backupMove.delta.y + (backupMove.delta.y/2) * binBrute.searchDir
+            predictEdgebug(cmd, localPlayer)
+            if successfulMove.found then break end
+        end
     end
 }
 
@@ -184,10 +208,16 @@ function onCreateMove(cmd)
         return
     end
 
+    predCount = 0
+
     backupMove.forwardmove = cmd.forwardmove
     backupMove.sidemove = cmd.sidemove
     backupMove.buttons = cmd.buttons
+    backupMove.delta = QAngle(0, cmd.viewangles.y - backupMove.angle.y, 0)
     backupMove.angle = QAngle(cmd.viewangles.x, cmd.viewangles.y, 0)
+
+    binBrute.highestGround = -1337420
+    binBrute.searchDir = 1
 
     forceEdgebug(cmd, localPlayer)
 
@@ -216,8 +246,6 @@ function onUI()
     ui.separator()
     ui.label("edgebug settings")
     ui.sliderInt("predict ticks", "edgebug predict ticks", 0, 256, "%d ticks")
-    ui.checkbox("edgebug trail", "edgebug trail")
-    ui.sliderFloat("edgebug strafe strength", "edgebug strafe strength", 0, 2, "%f")
     ui.separator()
     ui.label("trail")
     ui.checkbox("edgebug trail", "edgebug trail")
@@ -232,7 +260,7 @@ function onDraw()
         ui.label("edgebug found: " .. tostring(successfulMove.found))
         ui.label("sidemove: " .. successfulMove.sidemove)
         ui.label("forwardmove: " .. successfulMove.forwardmove)
-        ui.label("y delta: " .. successfulMove.delta)
+        ui.label("yaw delta: " .. successfulMove.delta.y)
         ui.endWindow()
     end
 end
