@@ -185,6 +185,7 @@ local edgebugLookupTable = {
         predictEdgebug(cmd, localPlayer)
     end,
     [2] = function (cmd, localPlayer) -- BiNaRy sEaRcH EdGeBuG
+        cmd.forwardmove = 0
         predictEdgebug(cmd, localPlayer)
         if successfulMove.found then return end
         while predCount < ui.getConfigFloat("edgebug predict ticks") do
@@ -202,7 +203,7 @@ function onCreateMove(cmd)
     currentTick = cmd.tickcount
     local localPlayer = entitylist.getEntity(entitylist.getLocalPlayer())
     if not (localPlayer:sane() and localPlayer:alive()) then return end
-
+    
     if not ui.isKeybinderDown("edgebug key") or localPlayer:onground() then
         successfulMove.found = false
         return
