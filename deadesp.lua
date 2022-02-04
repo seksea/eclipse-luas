@@ -17,7 +17,7 @@ function onCreateMove()
         ui.setConfigBool("enemy esp healthbar", ui.getConfigBool("deadesp healthbar") and not localPlayer:alive())
 
         local chamCol = ui.getConfigCol("enemy ignorez chams color")
-        chamCol.value.w = ui.getConfigBool("deadesp ignorez chams alpha") and health == 0 and 1 or 0
+        chamCol.value.w = ui.getConfigBool("deadesp ignorez chams alpha") and localPlayer:alive() and 0 or 1
         ui.setConfigCol("enemy ignorez chams color", chamCol)
     end
 end
