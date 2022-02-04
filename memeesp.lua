@@ -29,7 +29,7 @@ end
 function onCreateMove()
     chickens = {}
     fishies = {}
-    for i, ent in pairs(cheat.getEntitiesByClassID(36)) do
+    for i, ent in pairs(entitylist.getEntitiesByClassID(36)) do
         if ent:sane() then
             local box = ent:getBBox()
             if box.y > 0 then
@@ -37,7 +37,7 @@ function onCreateMove()
             end
         end
     end
-    for i, ent in pairs(cheat.getEntitiesByClassID(75)) do
+    for i, ent in pairs(entitylist.getEntitiesByClassID(75)) do
         if ent:sane() then
             local box = ent:getBBox()
             if box.y > 0 then
@@ -65,6 +65,6 @@ function onUI()
     ui.checkbox("fish esp text", "fish esp text")
 end
 
-cheat.registerHook("createMove", onCreateMove)
-cheat.registerHook("draw", onDraw)
-cheat.registerHook("UI", onUI)
+eclipse.registerHook("createMove", onCreateMove)
+eclipse.registerHook("draw", onDraw)
+eclipse.registerHook("UI", onUI)
