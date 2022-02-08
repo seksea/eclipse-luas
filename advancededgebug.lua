@@ -53,7 +53,7 @@ local binBrute = {
 -- if edgebug found force cmd to follow this edgebug
 local function forceEdgebug(cmd, localPlayer)
     if successfulMove.found then
-        -- disable edgebug if onground or past found edgebug tick
+        -- disable edgebug if past found edgebug tick
         if cmd.tickcount > successfulMove.edgebugTick then
             eclipse.clientCmd("play " .. EDGEBUG_SOUND)
             successfulMove.found = false
