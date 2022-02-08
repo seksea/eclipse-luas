@@ -10,10 +10,12 @@ function onCreateMove(cmd)
     if not (localPlayer:sane() and localPlayer:alive()) then return end
 	
     local aimpunch = localPlayer:getPropQAngle("DT_Local", "m_aimPunchAngle")
-    
-	if bit.band(cmd.buttons, bit.lshift(1, 0)) > 0 then
-		print(aimpunch.x .. " " .. aimpunch.y .. " " .. aimpunch.z)
-		eclipse.setViewAngles(QAngle(cmd.viewangles.x - (aimpunch.x - prev.x) * 2 * ui.getConfigFloat("x amount"), cmd.viewangles.y - (aimpunch.y - prev.y) * 2 * ui.getConfigFloat("y amount"), cmd.viewangles.z))
+    local shots = localPlayer:getPropInt("DT_CSLocalPlayerExclusive", "m_iShotsFired")
+	
+    if shots > 1 then
+		if bit.band(cmd.buttons, bit.lshift(1, 0)) > 0 then
+			eclipse.setViewAngles(QAngle(cmd.viewangles.x - (aimpunch.x - prev.x) * 2 * ui.getConfigFloat("x amount"), cmd.viewangles.y - (aimpunch.y - prev.y) * 2 * ui.getConfigFloat("y amount"), cmd.viewangles.z))
+		end
 	end
 	
     prev = aimpunch
