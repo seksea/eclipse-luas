@@ -2,15 +2,6 @@
 --desc standalone recoil script
 --author johannes / sumandora
 
-ffi = require("ffi")
-
-ffi.cdef([[
-typedef int (*SetViewAngles)(void*, void*);
-    ]])
-
-local IVEngineClient = ffi.cast("void***", memory.getInterface("./bin/linux64/engine_client.so", "VEngineClient"))
-local SetViewAngles = ffi.cast("SetViewAngles", IVEngineClient[0][19])
-
 local prev = QAngle(0,0,0)
 
 function onCreateMove(cmd)
