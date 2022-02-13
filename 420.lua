@@ -18,7 +18,7 @@ function onDraw()
     end
 
     if count >= IMAGE_LENGTH then return end
-    draw.drawImage(imageSequence[count], Vec2(0, 0), draw.getScreenSize())
+    draw.drawImage(imageSequence[count], Vec2(300, 500), Vec2(draw.getScreenSize().x - 300, draw.getScreenSize().y))
 end
 
 function onFireEvent(event)
