@@ -18,7 +18,7 @@ function onDraw()
     end
 
     if count >= IMAGE_LENGTH then return end
-    draw.drawImage(imageSequence[count], Vec2(300, 500), Vec2(draw.getScreenSize().x - 300, draw.getScreenSize().y))
+    draw.drawImage(imageSequence[count], Vec2(ui.getConfigFloat("420 x scale"), ui.getConfigFloat("420 y scale")), Vec2(draw.getScreenSize().x - ui.getConfigFloat("420 x scale"), draw.getScreenSize().y))
 end
 
 function onFireEvent(event)
@@ -28,5 +28,11 @@ function onFireEvent(event)
     end
 end
 
+function onUI(event)
+    ui.sliderInt("x scale", "420 x scale", -800, 800, "%d")
+    ui.sliderInt("y scale", "420 y scale", -800, 800, "%d")
+end
+
 eclipse.registerHook("draw", onDraw)
+eclipse.registerHook("UI", onUI)
 eclipse.registerHook("fireEvent", onFireEvent)

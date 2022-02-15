@@ -1,0 +1,6 @@
+{
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.workspace.userThirdParty": [
+        "lib/eclipse/config.lua"
+    ],
+}
