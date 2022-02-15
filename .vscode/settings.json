@@ -3,4 +3,7 @@
     "Lua.workspace.userThirdParty": [
         "lib/eclipse/config.lua"
     ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
+    ],
 }

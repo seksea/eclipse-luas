@@ -143,6 +143,9 @@ function Entity:preDataUpdate(updateType) end
 ---@type fun(updateType:number)
 function Entity:postDataUpdate(updateType) end
 
+---@type fun() : boolean
+function Entity:teammate() end
+
 
 ---@type fun(table:string, var:string) : boolean
 function Entity:getPropBool(table, var) end
@@ -207,6 +210,7 @@ function ClientClass:next() end
 ---@class Convar
 Convar = {}
 
+---@
 ---@type fun() : number
 function Convar:ffiPtr() end
 
