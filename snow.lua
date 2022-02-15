@@ -58,6 +58,6 @@ function uiHook()
     ui.checkbox("only when menu open##snow", "snow only when menu open")
 end
 
-cheat.registerHook("draw", drawHook)
-cheat.registerHook("drawabove", drawAboveHook)
-cheat.registerHook("UI", uiHook)
+eclipse.registerHook("draw", drawHook)
+eclipse.registerHook("drawabove", drawAboveHook)
+eclipse.registerHook("UI", uiHook)

@@ -84,6 +84,9 @@ Entity = {}
 function Entity:ffiPtr() end
 
 ---@type fun() : boolean
+function Entity:alive() end
+
+---@type fun() : boolean
 function Entity:exists() end
 
 ---@type fun() : boolean
@@ -535,7 +538,7 @@ function draw.pushFont(font) end
 ---@type fun()
 function draw.popFont() end
 
----@type fun(filename:string, size:int, hinting:boolean) : number
+---@type fun(filename:string, size:number, hinting:boolean) : number
 function draw.loadFont(filename, size, hinting) end
 
 ---@class draw.Image
