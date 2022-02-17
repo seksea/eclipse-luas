@@ -405,6 +405,21 @@ function ui.getMenuPos() end
 ---@type fun() : Vec2
 function ui.getMenuSize() end
 
+---@type fun() : Vec2
+function ui.getCurrentWindowPos() end
+
+---@type fun() : Vec2
+function ui.getCurrentWindowSize() end
+
+---@type fun() : Vec2
+function ui.getMousePos() end
+
+---@type fun() : number[]
+function ui.getKeysPressed() end
+
+---@type fun() : number
+function ui.getMousePressed() end
+
 ---@type fun() : boolean
 function ui.isMenuOpen() end
 
