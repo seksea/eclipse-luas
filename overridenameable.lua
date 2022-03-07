@@ -5,5 +5,5 @@ if not eclipse.isInGame() then
         textEntry.text = "\u2029\u2029\u2029\u2029\u2029\u2029\u2029cock"
         var validButton = $.GetContextPanel().FindChildTraverse("NameableValidBtn");
         validButton.enabled = true
-    ]], "panorama/layout/base.xml")
+    ]], "CSGOMainMenu")
 end

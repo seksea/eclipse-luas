@@ -1,24 +1,38 @@
 --name trace example
---desc runs a visible check on all entities with traceray to print current visible entities (createmove)
+--desc runs a trace from player's viewangles and prints debug trace results on-screen
 --author sekc
 
-function onCreateMove()
+
+local traceResult = {}
+
+function onCreateMove(cmd)
     local localPlayer = entitylist.getEntity(entitylist.getLocalPlayer())
     if not localPlayer:sane() then return end
-
+    
     local begin = localPlayer:origin()
     begin.z = begin.z + 64
 
-    for i, ent in pairs(entitylist.getEntitiesByClassID(40)) do
-        if ent:sane() then
-            local _end = ent:origin()
-            _end.z = _end.z + 64
-            local result = trace.traceSimple(begin, _end)
-            if result.entityHit:sane() and (result.entityHit:index() == ent:index()) then
-                print("entity " .. ent:index() .. " is visible.")
-            end
-        end
+    local forward = eclipse.angleVector(cmd.viewangles)
+
+    local _end = Vector(begin.x + (forward.x * 4096), begin.y + (forward.y * 4096), begin.z + (forward.z * 4096))
+
+    traceResult = trace.traceSimple(begin, _end)
+end
+
+function onDraw()
+    ui.beginWindow("trace debug")
+    ui.label("surfaceName: " .. traceResult.surfaceName)
+    ui.label("slopeAngle: " .. traceResult.slopeAngle)
+    ui.label("contents: " .. traceResult.contents)
+    ui.label("distance: " .. traceResult.fraction*4096 .. "units")
+    ui.separator()
+    if traceResult.entityHit:sane() then
+        ui.label("entity: " .. traceResult.entityHit:index())
+        ui.label("hitbox: " .. traceResult.hitbox)
+        ui.label("hitgroup: " .. traceResult.hitgroup)
     end
+    ui.endWindow()
 end
 
 eclipse.registerHook("createMove", onCreateMove)
+eclipse.registerHook("draw", onDraw)

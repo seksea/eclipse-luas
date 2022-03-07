@@ -1,6 +1,8 @@
 ---@diagnostic disable: lowercase-global
 ---@meta
 
+---@alias pointer number
+
 ---@type fun(str: string)
 function print(str) end
 
@@ -80,7 +82,7 @@ UserCmd = {}
 ---@class Entity
 Entity = {}
 
----@type fun() : number
+---@type fun() : pointer
 function Entity:ffiPtr() end
 
 ---@type fun() : boolean
@@ -210,8 +212,7 @@ function ClientClass:next() end
 ---@class Convar
 Convar = {}
 
----@
----@type fun() : number
+---@type fun() : pointer
 function Convar:ffiPtr() end
 
 ---@type fun() : number
@@ -233,7 +234,7 @@ function Convar:setInt(val) end
 ---@class GameEvent
 GameEvent = {}
 
----@type fun() : number
+---@type fun() : pointer
 function GameEvent:ffiPtr() end
 
 ---@type fun() : boolean
@@ -302,16 +303,19 @@ function eclipse.endMovementFix(cmd) end
 ---@type fun(angle:QAngle)
 function eclipse.setViewAngles(angle) end
 
+---@type fun(angle:QAngle) : Vector
+function eclipse.angleVector(angle) end
+
 ---------------------------------------------------------------------------
 memory = {}
 
----@type fun(lib:string, interface:string) : number
+---@type fun(lib:string, interface:string) : pointer
 function memory.getInterface(lib, interface) end
 
----@type fun(ptr:number, offset:number, size:number) : number
+---@type fun(ptr:number, offset:number, size:number) : pointer
 function memory.getAbsoluteAddress(ptr, offset, size) end
 
----@type fun(lib:number, pattern:string) : number
+---@type fun(lib:number, pattern:string) : pointer
 function memory.patternScan(ptr, offset, size) end
 
 ---------------------------------------------------------------------------
@@ -366,13 +370,13 @@ trace = {}
 ---@field hitbox number
 ---@field hitgroup number
 ---@field surfaceName string
----@field surfaceAngle number
+---@field slopeAngle number
 trace.TraceResult = {}
 
 ---@type fun(begin:Vector, end_:Vector, entitySkip:Entity, mask:number) : trace.TraceResult
 function trace.trace(begin, end_, entitySkip, mask) end
 
----@type fun(begin:Vector, end:Vector) : trace.TraceResult
+---@type fun(begin:Vector, end_:Vector) : trace.TraceResult
 function trace.traceSimple(begin, end_) end
 
 ---@type fun(begin:Vector, end_:Vector, min:Vector, max:Vector, entitySkip:Entity, mask:number) : trace.TraceResult
@@ -384,8 +388,8 @@ function trace.traceHullSimple(begin, end_, min, max) end
 ---------------------------------------------------------------------------
 panorama = {}
 
----@type fun(script:string, context:string)
-function panorama.executeScript(script, context) end
+---@type fun(script:string, panel:string)
+function panorama.executeScript(script, panel) end
 
 ---------------------------------------------------------------------------
 glow = {}
@@ -498,7 +502,7 @@ function ui.sliderInt(text, varName, min, max, format) end
 function ui.sliderFloat(text, varName, min, max, format) end
 
 ---@type fun(label:string, varName:string)
-function ui.keyBinder(text, varName) end
+function ui.keybinder(text, varName) end
 
 ---@type fun(varName:string) : boolean
 function ui.isKeybinderDown(varName) end

@@ -5,7 +5,7 @@ if not eclipse.isInGame() then
     panorama.executeScript([[
         collectedSteamIDS = [];
         collectedSteamIDS.push("123");
-    ]], "panorama/layout/base.xml")
+    ]], "CSGOMainMenu")
     end
     
     function onUI()
@@ -21,7 +21,7 @@ if not eclipse.isInGame() then
             for (var id = 0; id < friends; id++) {
                 var xuid = FriendsListAPI.GetXuidByIndex(id);
                 FriendsListAPI.ActionInviteFriend(xuid, "");
-            }]], "panorama/layout/base.xml")
+            }]], "CSGOMainMenu")
         end
         ui.checkbox("mass invite", "mass invite")
     end
@@ -50,12 +50,12 @@ if not eclipse.isInGame() then
                 $.Msg(`Mass invite collection: ${collectedSteamIDS.length}`);
                 collectedSteamIDS.forEach(xuid => {
                     FriendsListAPI.ActionInviteFriend(xuid, "");
-                });]], "panorama/layout/base.xml")
+                });]], "CSGOMainMenu")
         end
     end
     
     function onUnload()
-        panorama.executeScript("massInviteEnabled = false;", "panorama/layout/base.xml") 
+        panorama.executeScript("massInviteEnabled = false;", "CSGOMainMenu") 
     end
     
     eclipse.registerHook("UI", onUI)

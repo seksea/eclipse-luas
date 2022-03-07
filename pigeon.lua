@@ -8,4 +8,4 @@ panorama.executeScript([[
     model.actualyoffset = 100
     model.SetScene("resource/ui/econ/ItemModelPanelManifest_Panorama.res", "models/player/custom_player/legacy/ctm_sas.mdl", false)
     model.SetSceneModel("models/pigeon.mdl")
-]], "panorama/layout/base.xml")
+]], "CSGOMainMenu")

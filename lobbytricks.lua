@@ -16,7 +16,7 @@ function stopQueue() {
         LobbyAPI.StopMatchmaking();
     }
 }
-stopQueue()]], "panorama/layout/base.xml")
+stopQueue()]], "CSGOMainMenu")
 end
 
 
@@ -27,7 +27,7 @@ function onUI()
     end
 
     if ui.button("popup") then
-        panorama.executeScript([[PartyListAPI.SessionCommand("Game::HostEndGamePlayAgain", "run all xuid ${MyPersonaAPI.GetXuid()}");]], "panorama/layout/base.xml")
+        panorama.executeScript([[PartyListAPI.SessionCommand("Game::HostEndGamePlayAgain", "run all xuid ${MyPersonaAPI.GetXuid()}");]], "CSGOMainMenu")
     end
 
     if ui.button("spam popups") then
@@ -38,29 +38,29 @@ function closeAllPopups() {
 for (i = 0; i < 200; i++) {    
     PartyListAPI.SessionCommand("Game::HostEndGamePlayAgain", "run all xuid ${MyPersonaAPI.GetXuid()}");
 }
-$.Schedule(2, closeAllPopups);]], "panorama/layout/base.xml")
+$.Schedule(2, closeAllPopups);]], "CSGOMainMenu")
     end
 
     if ui.button("close all popups") then
-        panorama.executeScript([[$.DispatchEvent("CSGOHideMainMenu");]], "panorama/layout/base.xml")
+        panorama.executeScript([[$.DispatchEvent("CSGOHideMainMenu");]], "CSGOMainMenu")
     end
 
     ui.separator()
     if ui.button("stop matchmaking") then
-        panorama.executeScript([[LobbyAPI.StopMatchmaking();]], "panorama/layout/base.xml")
+        panorama.executeScript([[LobbyAPI.StopMatchmaking();]], "CSGOMainMenu")
     end
     ui.checkbox("disallow queue", "disallow queue")
     ui.textInput("disallow reason", "reason for disallow")
     ui.separator()
     ui.textInput("lobby error message", "lobby error message")
     if ui.button("send error message") then
-        panorama.executeScript([[PartyListAPI.SessionCommand("Game::ChatReportError", `run all xuid ${MyPersonaAPI.GetXuid()} error #SFUI_QMM_ERROR_]] .. ui.getConfigStr("lobby error message") .. [[`);]], "panorama/layout/base.xml")
+        panorama.executeScript([[PartyListAPI.SessionCommand("Game::ChatReportError", `run all xuid ${MyPersonaAPI.GetXuid()} error #SFUI_QMM_ERROR_]] .. ui.getConfigStr("lobby error message") .. [[`);]], "CSGOMainMenu")
     end
 
     panorama.executeScript([[
 disallowQueue = ]] .. (ui.getConfigBool("disallow queue") and "true" or "false") .. [[;
 disallowQueueReason = "]] .. ui.getConfigStr("reason for disallow") .. [[";
-]], "panorama/layout/base.xml")
+]], "CSGOMainMenu")
 end
 
 eclipse.registerHook("UI", onUI)
