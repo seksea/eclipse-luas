@@ -2,17 +2,6 @@
 --desc customise fog
 --author sekc
 
-local function getClientClassByName(name)
-    local c = eclipse.getAllClientClasses()
-    while c:exists() do
-        if c:name() == name then
-            return c
-        end
-        c = c:next()
-    end
-    return false
-end
-
 function onCreateMove(cmd)
     if not (cmd.tickcount > 0) or not (cmd.tickcount % 64 == 0) then return end
     for i, fogController in pairs(entitylist.getEntitiesByClassID(78)) do
