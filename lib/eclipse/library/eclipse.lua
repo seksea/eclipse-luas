@@ -11,6 +11,8 @@ function print(str) end
 ---@field x number
 ---@field y number
 
+-- Can also + - * / with others of this type
+
 ---@type fun(x:number, y:number) : Vec2
 Vec2 = {}
 
@@ -21,6 +23,8 @@ Vec2 = {}
 ---@field z number
 ---@field w number
 
+-- Can also + - * / with others of this type
+
 ---@type fun(x:number, y:number, z:number, w:number) : Vec4
 Vec4 = {}
 
@@ -29,6 +33,8 @@ Vec4 = {}
 ---@field x number
 ---@field y number
 ---@field z number
+
+-- Can also + - * / with others of this type
 
 ---@type fun(x:number, y:number, z:number) : Vector
 Vector = {}
@@ -415,6 +421,9 @@ function ui.getCurrentWindowPos() end
 ---@type fun() : Vec2
 function ui.getCurrentWindowSize() end
 
+---@type fun(size:Vec2)
+function ui.setNextWindowSize(size) end
+
 ---@type fun() : Vec2
 function ui.getMousePos() end
 
@@ -423,6 +432,9 @@ function ui.getKeysPressed() end
 
 ---@type fun() : number
 function ui.getMousePressed() end
+
+---@type fun() : number
+function ui.getMouseWheel() end
 
 ---@type fun() : boolean
 function ui.isMenuOpen() end
@@ -461,6 +473,9 @@ function ui.setConfigCol(name, value) end
 
 ---@type fun(title:string)
 function ui.beginWindow(title) end
+
+---@type fun(title:string, flags:number)
+function ui.beginComplexWindow(title, flags) end
 
 ---@type fun()
 function ui.sameLine() end

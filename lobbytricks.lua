@@ -7,7 +7,7 @@ if not eclipse.isInGame() then
 disallowQueue = false;
 disallowQueueReason = "";
 function stopQueue() {
-    $.Schedule(5, stopQueue);
+    $.Schedule(2, stopQueue);
     if (disallowQueue && LobbyAPI.GetMatchmakingStatusString() == "#SFUI_QMM_State_find_searching") {
         reason = disallowQueueReason;
         if (reason != "") {
@@ -63,4 +63,16 @@ disallowQueueReason = "]] .. ui.getConfigStr("reason for disallow") .. [[";
 ]], "CSGOMainMenu")
 end
 
+function onDraw()
+    if ui.isMenuOpen() then
+        ui.beginComplexWindow("custom panorama runner", 0)
+        ui.textInputMultiline("custom panorama js", "custom panorama js", ui.getCurrentWindowSize().y - 65)
+        if ui.button("run panorama js") then
+            panorama.executeScript(ui.getConfigStr("custom panorama js"), "CSGOMainMenu")
+        end
+        ui.endWindow()
+    end
+end
+
 eclipse.registerHook("UI", onUI)
+eclipse.registerHook("draw", onDraw)
