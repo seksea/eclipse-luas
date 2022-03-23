@@ -4,7 +4,6 @@
 
 panorama.executeScript([[
     trollCount = 0;
-    LobbyAPI.CloseSession();
 ]], "CSGOMainMenu")
 
 function update()
@@ -27,7 +26,7 @@ local timeToNextUpdate = 0
 function onDraw()
     timeToNextUpdate = timeToNextUpdate - draw.deltaTime()
     if timeToNextUpdate < 0 then
-        timeToNextUpdate = timeToNextUpdate + 2
+        timeToNextUpdate = timeToNextUpdate + 10
         update()
     end
 end

@@ -404,7 +404,7 @@ glow = {}
 function glow.glowEntity(entity, color, style) end
 
 ---@type fun(origin:Vector, index:number, life:number, color:Color, radius:number, decay:number)
-function glow.createDlight() end
+function glow.createDlight(origin, index, life, color, radius, decay) end
 
 ---------------------------------------------------------------------------
 ui = {}
