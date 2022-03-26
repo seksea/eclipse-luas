@@ -9,6 +9,7 @@ panorama.executeScript([[
 function update()
     panorama.executeScript([[
         if (PartyListAPI.GetCount() <= 3) { // if not in a party find a party to join via looking to play
+            LobbyAPI.CloseSession();
             PartyListAPI.SetLocalPlayerForHireAdvertising("competitive");
             PartyBrowserAPI.ActionJoinParty(PartyBrowserAPI.GetInviteXuidByIndex(0));
         }

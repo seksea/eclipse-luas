@@ -546,6 +546,12 @@ function draw.gradientFilledRectangle(min, max, tl, tr, bl, br) end
 ---@type fun(p1:Vec2, p2:Vec2, color:Color, thickness:number)
 function draw.line(p1, p2, color, thickness) end
 
+---@type fun(pos:Vec2, radius:number, color:Color, thickness:number, nSides:number)
+function draw.polygon(pos, radius, color, thickness, nSides) end
+
+---@type fun(pos:Vec2, radius:number, color:Color, nSides:number)
+function draw.filledPolygon(pos, radius, color, nSides) end
+
 ---@type fun(p1:Vec2, radius:number, color:Color, thickness:number)
 function draw.circle(pos, radius, color, thickness) end
 
@@ -590,3 +596,6 @@ function draw.loadImage(filename) end
 
 ---@type fun(image:draw.Image, min:Vec2, max:Vec2)
 function draw.drawImage(image, min, max) end
+
+---@type fun(min:Vec2, max:Vec2, strength:number)
+function draw.drawBlurRect(min, max, strength) end
