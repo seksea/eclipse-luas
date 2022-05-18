@@ -262,6 +262,7 @@ end
 
 function onDraw()
     if successfulMove.edgebugTick > currentTick - 64 or ui.isMenuOpen() then
+        ui.setNextWindowSize(Vec2(160, 80))
         ui.beginWindow("edgebug info")
         ui.label("edgebug found: " .. tostring(successfulMove.found))
         ui.label("sidemove: " .. successfulMove.sidemove)
