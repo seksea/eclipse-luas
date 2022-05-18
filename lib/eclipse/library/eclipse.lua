@@ -151,6 +151,12 @@ function Entity:preDataUpdate(updateType) end
 ---@type fun(updateType:number)
 function Entity:postDataUpdate(updateType) end
 
+---@type fun(modelIndex:number)
+function Entity:setModelIndex(modelIndex) end
+
+---@type fun() : number
+function Entity:getModelIndex() end
+
 ---@type fun() : boolean
 function Entity:teammate() end
 
@@ -323,6 +329,12 @@ function memory.getAbsoluteAddress(ptr, offset, size) end
 
 ---@type fun(lib:number, pattern:string) : pointer
 function memory.patternScan(ptr, offset, size) end
+
+---@type fun(modelPath:string) : boolean
+function memory.precacheModel(modelPath) end
+
+---@type fun(modelPath:string) : boolean
+function memory.getModelIndex(modelPath) end
 
 ---------------------------------------------------------------------------
 prediction = {}
