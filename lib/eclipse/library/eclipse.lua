@@ -611,3 +611,14 @@ function draw.drawImage(image, min, max) end
 
 ---@type fun(min:Vec2, max:Vec2, strength:number)
 function draw.drawBlurRect(min, max, strength) end
+
+---------------------------------------------------------------------------
+web = {}
+
+---@class web.WebResult
+---@field status number
+---@field body string
+web.WebResult = {}
+
+---@type fun(host:string, path:string) : web.WebResult
+function web.get(host, path) end
